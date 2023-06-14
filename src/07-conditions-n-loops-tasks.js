@@ -71,7 +71,7 @@ function getFactorial(n) {
  */
 function getSumBetweenNumbers(n1, n2) {
   let result = 0;
-  for (let i = n1; i <= n2; i++) {
+  for (let i = n1; i <= n2; i += 1) {
     result += i;
   }
   return result;
@@ -285,7 +285,7 @@ function isCreditCardNumber(ccn) {
   let sum = 0;
   let double = false;
 
-  for (let i = ccnStr.length - 1; i >= 0; i--) {
+  for (let i = ccnStr.length - 1; i >= 0; i -= 1) {
     const digit = Number(ccnStr.charAt(i));
 
     if (double) {
@@ -409,7 +409,7 @@ function getCommonDirectoryPath(pathes) {
   const sortedPathes = pathes.map((path) => path.split('/')).sort((a, b) => a.length - b.length);
   const shortestPath = sortedPathes[0];
 
-  for (let i = 0; i < shortestPath.length; i++) {
+  for (let i = 0; i < shortestPath.length; i += 1) {
     const currentPart = shortestPath[i];
 
     if (sortedPathes.some((path) => path[i] !== currentPart)) {
