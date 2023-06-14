@@ -116,36 +116,119 @@ function fromJSON(proto, json) {
  *  For more examples see unit tests.
  */
 
+class Selector {
+  constructor(selector) {
+    this.selector = [selector];
+  }
+
+  element(value) {
+    this.validate('element');
+    this.selector.push({ type: 'element', value });
+    return this;
+  }
+
+  id(value) {
+    this.validate('id');
+    this.selector.push({ type: 'id', value });
+    return this;
+  }
+
+  class(value) {
+    this.validate('class');
+    this.selector.push({ type: 'class', value });
+    return this;
+  }
+
+  attr(value) {
+    this.validate('attr');
+    this.selector.push({ type: 'attr', value });
+    return this;
+  }
+
+  pseudoClass(value) {
+    this.validate('pseudo-class');
+    this.selector.push({ type: 'pseudo-class', value });
+    return this;
+  }
+
+  pseudoElement(value) {
+    this.validate('pseudo-element');
+    this.selector.push({ type: 'pseudo-element', value });
+    return this;
+  }
+
+  stringify() {
+    return this.selector.reduce((acc, el) => {
+      switch (el.type) {
+        case 'element':
+          return acc + el.value;
+        case 'id':
+          return `${acc}#${el.value}`;
+        case 'class':
+          return `${acc}.${el.value}`;
+        case 'attr':
+          return `${acc}[${el.value}]`;
+        case 'pseudo-class':
+          return `${acc}:${el.value}`;
+        case 'pseudo-element':
+          return `${acc}::${el.value}`;
+        default:
+          return acc;
+      }
+    }, '');
+  }
+
+  validate(type) {
+    if (type === 'element' || type === 'id' || type === 'pseudo-element') {
+      if (this.selector.find((el) => el.type === type)) {
+        throw new Error('Element, id and pseudo-element should not occur more then one time inside the selector');
+      }
+    }
+
+    const correctOrder = ['element', 'id', 'class', 'attr', 'pseudo-class', 'pseudo-element'];
+    const index = correctOrder.indexOf(this.selector[this.selector.length - 1].type);
+    if (correctOrder.indexOf(type) < index) {
+      throw new Error('Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element');
+    }
+  }
+}
+
 const cssSelectorBuilder = {
-  element(/* value */) {
-    throw new Error('Not implemented');
+  element(value) {
+    return new Selector({ type: 'element', value });
   },
 
-  id(/* value */) {
-    throw new Error('Not implemented');
+  id(value) {
+    return new Selector({ type: 'id', value });
   },
 
-  class(/* value */) {
-    throw new Error('Not implemented');
+  class(value) {
+    return new Selector({ type: 'class', value });
   },
 
-  attr(/* value */) {
-    throw new Error('Not implemented');
+  attr(value) {
+    return new Selector({ type: 'attr', value });
   },
 
-  pseudoClass(/* value */) {
-    throw new Error('Not implemented');
+  pseudoClass(value) {
+    return new Selector({ type: 'pseudo-class', value });
   },
 
-  pseudoElement(/* value */) {
-    throw new Error('Not implemented');
+  pseudoElement(value) {
+    return new Selector({ type: 'pseudo-element', value });
   },
 
-  combine(/* selector1, combinator, selector2 */) {
-    throw new Error('Not implemented');
+  combine(sel1, combinator, sel2) {
+    return {
+      sel1,
+      sel2,
+      combinator,
+      stringify() {
+        return `${this.sel1.stringify()} ${this.combinator} ${this.sel2.stringify()}`;
+      },
+    };
   },
 };
-
 
 module.exports = {
   Rectangle,
